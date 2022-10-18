@@ -5,13 +5,15 @@ authors = []
 telemetry = false
 cache_dir = './.cache'
 requirements = []
-[contracts.parts]
-path = 'contracts/parts.clar'
-clarity_version = 1
 
 [contracts.svg]
 path = 'contracts/svg.clar'
 clarity_version = 1
+
+[contracts.parts]
+path = 'contracts/parts.clar'
+clarity_version = 1
+
 [repl.analysis]
 passes = ['check_checker']
 
