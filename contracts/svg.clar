@@ -51,23 +51,10 @@
 ;; init
 ;; load base layers
 (var-set nextPartId (fold add-part (contract-call? .parts get-parts) (var-get nextPartId)))
+
 ;; generate first token
 (map-insert Tokens u1 (list 
-  {i: u1, c: (some "00ff00")}
-  {i: u2, c: (some "00ff00")}
-  {i: u3, c: (some "00ff00")}
-  {i: u4, c: (some "00ff00")}
-  {i: u5, c: (some "00ff00")}
-  {i: u6, c: (some "00ff00")}
-  {i: u7, c: (some "00ff00")}
-  {i: u8, c: (some "00ff00")}
-  {i: u9, c: (some "00ff00")}
-  {i: u10, c: (some "00ff00")}
-  {i: u11, c: (some "00ff00")}
-  {i: u12, c: (some "00ff00")}
-  {i: u13, c: (some "00ff00")}
-  {i: u14, c: (some "00ff00")}
-  {i: u15, c: (some "00ff00")}
-  {i: u16, c: (some "00ff00")}
+  {i: u1, c: (some "000000")}
+  {i: u2, c: (some "F7931A")}
 ))
 (var-set nextTokenId u2)
