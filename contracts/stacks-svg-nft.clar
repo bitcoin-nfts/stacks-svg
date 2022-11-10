@@ -56,21 +56,16 @@
     (map-get? market id))
 
 (define-private (trnsfr (id uint) (sender principal) (recipient principal))
-    (match (nft-transfer? stacks-svg-nft id sender recipient)
-        success
-            (let
-                ((sender-balance (get-balance sender))
-                    (recipient-balance (get-balance recipient)))
-                (map-set token-count sender (- sender-balance u1))
-                (map-set token-count recipient (+ recipient-balance u1))
-                (ok success))
-        error
-            (err error)))
+    (begin
+        (try! (nft-transfer? stacks-svg-nft id sender recipient))
+        (map-set token-count sender (- (get-balance sender) u1))
+        (map-set token-count recipient (+ (get-balance recipient) u1))
+        (ok true)))
 
-(define-private (is-sender-owner (id uint))
-    (let
-        ((owner (unwrap! (nft-get-owner? stacks-svg-nft id) false)))
-        (or (is-eq tx-sender owner) (is-eq contract-caller owner))))
+(define-read-only (is-sender-owner (id uint))
+    (match (nft-get-owner? stacks-svg-nft id) owner
+        (or (is-eq tx-sender owner) (is-eq contract-caller owner))
+        false))
 
 ;; SIP009: Transfer token to a specified principal
 (define-public (transfer (id uint) (sender principal) (recipient principal))
@@ -81,10 +76,10 @@
         (trnsfr id sender recipient)))
 
 (define-public (list-in-ustx (id uint) (price uint) (comm <commission-trait>))
-    (let ((listing  {price: price, commission: (contract-of comm)}))
+    (begin
         (asserts! (is-sender-owner id) ERR-NOT-AUTHORIZED)
-        (map-set market id listing)
-        (print (merge listing {action: "list-in-ustx", id: id}))
+        (map-set market id {price: price, commission: (contract-of comm)})
+        (print {price: price, commission: comm, action: "list-in-ustx", id: id})
         (ok true)))
 
 (define-public (unlist-in-ustx (id uint))
@@ -107,16 +102,14 @@
     (ok true)))
 
 (define-public (set-base-uri (new-base-uri (string-ascii 80)))
-    (begin
-        (asserts! (is-eq tx-sender CONTRACT-OWNER) ERR-NOT-AUTHORIZED)
-        (var-set base-uri new-base-uri)
-        (ok true)))
+    (if (is-eq tx-sender CONTRACT-OWNER) 
+        (ok (var-set base-uri new-base-uri))
+        ERR-NOT-AUTHORIZED))
 
 (define-public (set-contract-uri (new-contract-uri (string-ascii 80)))
-    (begin
-        (asserts! (is-eq tx-sender CONTRACT-OWNER) ERR-NOT-AUTHORIZED)
-        (var-set contract-uri new-contract-uri)
-        (ok true)))
+    (if (is-eq tx-sender CONTRACT-OWNER) 
+        (ok (var-set contract-uri new-contract-uri))
+        ERR-NOT-AUTHORIZED))
 
 (define-private (mint-many (new-owner principal) (orders (list 50 principal)))
     (let
